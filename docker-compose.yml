@@ -1,0 +1,32 @@
+# Virtua docker-compose
+# For latest versions of our Virtua Docker Containers, see:
+# <https://github.com/virtua-sa/docker-virtuasa-php>
+web:
+  image: virtuasa/php:${PHP_VERSION}
+  environment:
+    - APACHE_DOCUMENT_ROOT=public
+    - APACHE_SERVER_NAME=site.${DOMAIN_BASE}
+    - HOSTNAME_LOCAL_ALIAS=site.${DOMAIN_BASE}
+    - PHP_IDE_CONFIG=serverName=site.${DOMAIN_BASE}
+  labels:
+    - "com.dnsdock.alias=site.${DOMAIN_BASE}"
+  volumes:
+    - ./:/data
+  links:
+    - "db:db.${DOMAIN_BASE}"
+
+db:
+  image: percona:5.6
+  volumes:
+    - ./setup/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    - ./var/db:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=Welcome123
+    - MYSQL_DATABASE=training
+  labels:
+    - "com.dnsdock.alias=db.${DOMAIN_BASE}"
+
+# Build:    `docker-compose build`
+# Run:      `docker-compose up -d`
+# Stop:     `docker-compose down`
+# Shell:    `docker-compose exec web /bin/bash`
